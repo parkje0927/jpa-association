@@ -51,13 +51,19 @@ public class EntityJoinMetaData {
     }
 
     private String getEntityNameInfo() {
-        return clazz.isAnnotationPresent(Table.class) && !isBlankOrEmpty(clazz.getAnnotation(Table.class).name())
-                ? clazz.getAnnotation(Table.class).name() : clazz.getSimpleName().toLowerCase();
+        if (clazz.isAnnotationPresent(Table.class) && !isBlankOrEmpty(clazz.getAnnotation(Table.class).name())) {
+            return clazz.getAnnotation(Table.class).name();
+        }
+
+        return clazz.getSimpleName().toLowerCase();
     }
 
     public String getJoinColumnNameInfo(Field field, IdField entityMetaDataIdField) {
-        return field.isAnnotationPresent(JoinColumn.class) && !isBlankOrEmpty(field.getAnnotation(JoinColumn.class).name())
-                ? field.getAnnotation(JoinColumn.class).name() : getEntityNameInfo() + UNDER_SCORE + entityMetaDataIdField.getFieldNameData();
+        if (field.isAnnotationPresent(JoinColumn.class) && !isBlankOrEmpty(field.getAnnotation(JoinColumn.class).name())) {
+            return field.getAnnotation(JoinColumn.class).name();
+        }
+
+        return getEntityNameInfo() + UNDER_SCORE + entityMetaDataIdField.getFieldNameData();
     }
 
     private List<FieldName> getFieldNamesInfo() {

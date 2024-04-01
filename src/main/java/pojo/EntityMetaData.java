@@ -15,7 +15,6 @@ import static utils.StringUtils.isBlankOrEmpty;
 public class EntityMetaData {
 
     private final Class<?> clazz;
-    private final Object entity;
     private final String entityName;
     private final List<EntityColumn> entityColumns;
     private final EntityJoinMetaData entityJoinMetaData; //OrderItem
@@ -25,10 +24,9 @@ public class EntityMetaData {
             throw new IllegalStateException("Entity 클래스가 아닙니다.");
         }
         this.clazz = clazz;
-        this.entity = entity;
         this.entityName = getEntityNameInfo();
-        this.entityColumns = getEntityColumnsInfo();
-        this.entityJoinMetaData = getEntityJoinMetaDataInfo();
+        this.entityColumns = null;
+        this.entityJoinMetaData = null;
     }
 
     public String getEntityName() {
@@ -44,17 +42,20 @@ public class EntityMetaData {
     }
 
     private String getEntityNameInfo() {
-        return clazz.isAnnotationPresent(Table.class) && !isBlankOrEmpty(clazz.getAnnotation(Table.class).name())
-                ? clazz.getAnnotation(Table.class).name() : clazz.getSimpleName().toLowerCase();
+        if (clazz.isAnnotationPresent(Table.class) && !isBlankOrEmpty(clazz.getAnnotation(Table.class).name())) {
+            return clazz.getAnnotation(Table.class).name();
+        }
+
+        return clazz.getSimpleName().toLowerCase();
     }
 
-    private List<EntityColumn> getEntityColumnsInfo() {
+    public List<EntityColumn> getEntityColumnsInfo(Object entity) {
         return new FieldInfos(clazz.getDeclaredFields()).getIdAndColumnFields().stream()
                 .map(field -> new EntityColumn(field, entity))
                 .collect(Collectors.toList());
     }
 
-    private EntityJoinMetaData getEntityJoinMetaDataInfo() {
+    public EntityJoinMetaData getEntityJoinMetaDataInfo(Object entity) {
         FieldInfos fieldInfos = new FieldInfos(clazz.getDeclaredFields());
 
         Optional<Field> joinColumnField = fieldInfos.getJoinColumnField();
