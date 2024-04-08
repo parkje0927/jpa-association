@@ -18,9 +18,9 @@ public class CustomSelectQueryBuilder {
     private final EntityMetaData entityMetaData;
     private final EntityJoinMetaData entityJoinMetaData;
 
-    public CustomSelectQueryBuilder(EntityMetaData entityMetaData) {
+    public CustomSelectQueryBuilder(EntityMetaData entityMetaData, Object entity) {
         this.entityMetaData = entityMetaData;
-        this.entityJoinMetaData = entityMetaData.getEntityJoinMetaData();
+        this.entityJoinMetaData = entityMetaData.createEntityJoinMetaDataInfo(entity);
     }
 
     public String findByIdJoinQuery(Object entity, Class<?> clazz) {
@@ -30,14 +30,14 @@ public class CustomSelectQueryBuilder {
         String metaDataEntityName = entityMetaData.getEntityName();
         String joinMetaDataEntityName = entityJoinMetaData.getEntityName();
 
-        return String.format(FIND_BY_ID_JOIN_QUERY, getSelectData(), metaDataEntityName, joinMetaDataEntityName,
+        return String.format(FIND_BY_ID_JOIN_QUERY, getSelectData(entity), metaDataEntityName, joinMetaDataEntityName,
                 metaDataEntityName + PERIOD + idField.getFieldNameData(),
                 joinMetaDataEntityName + PERIOD + entityJoinMetaData.getJoinColumnName(),
                 metaDataEntityName + PERIOD + idField.getFieldNameData(), idField.getFieldValueData());
     }
 
-    private String getSelectData() {
-        String entityData = entityMetaData.getEntityColumns()
+    private String getSelectData(Object entity) {
+        String entityData = entityMetaData.createEntityColumnsInfo(entity)
                 .stream()
                 .map(entityColumn -> entityColumn.getFieldName().getName())
                 .map(name -> entityMetaData.getEntityName() + PERIOD + name)
@@ -53,5 +53,4 @@ public class CustomSelectQueryBuilder {
 
         return entityData + COMMA + ownerEntityData;
     }
-
 }

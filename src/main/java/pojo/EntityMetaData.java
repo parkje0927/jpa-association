@@ -16,29 +16,23 @@ public class EntityMetaData {
 
     private final Class<?> clazz;
     private final String entityName;
-    private final List<EntityColumn> entityColumns;
-    private final EntityJoinMetaData entityJoinMetaData; //OrderItem
+    private final FieldInfos fieldInfos;
 
-    public EntityMetaData(Class<?> clazz, Object entity) {
+    public EntityMetaData(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Entity.class)) {
             throw new IllegalStateException("Entity 클래스가 아닙니다.");
         }
         this.clazz = clazz;
         this.entityName = getEntityNameInfo();
-        this.entityColumns = null;
-        this.entityJoinMetaData = null;
+        this.fieldInfos = new FieldInfos(clazz.getDeclaredFields());
     }
 
     public String getEntityName() {
         return entityName;
     }
 
-    public List<EntityColumn> getEntityColumns() {
-        return entityColumns;
-    }
-
-    public EntityJoinMetaData getEntityJoinMetaData() {
-        return entityJoinMetaData;
+    public FieldInfos getFieldInfos() {
+        return fieldInfos;
     }
 
     private String getEntityNameInfo() {
@@ -49,15 +43,13 @@ public class EntityMetaData {
         return clazz.getSimpleName().toLowerCase();
     }
 
-    public List<EntityColumn> getEntityColumnsInfo(Object entity) {
-        return new FieldInfos(clazz.getDeclaredFields()).getIdAndColumnFields().stream()
+    public List<EntityColumn> createEntityColumnsInfo(Object entity) {
+        return fieldInfos.getIdAndColumnFields().stream()
                 .map(field -> new EntityColumn(field, entity))
                 .collect(Collectors.toList());
     }
 
-    public EntityJoinMetaData getEntityJoinMetaDataInfo(Object entity) {
-        FieldInfos fieldInfos = new FieldInfos(clazz.getDeclaredFields());
-
+    public EntityJoinMetaData createEntityJoinMetaDataInfo(Object entity) {
         Optional<Field> joinColumnField = fieldInfos.getJoinColumnField();
         if (joinColumnField.isEmpty()) {
             return null;
@@ -67,6 +59,6 @@ public class EntityMetaData {
         IdField idField = new IdField(field, entity);
 
         Class<?> joinClass = (Class<?>) ((ParameterizedType) joinColumnField.get().getGenericType()).getActualTypeArguments()[0];
-        return new EntityJoinMetaData(joinClass, null, joinColumnField.get(), idField);
+        return new EntityJoinMetaData(joinClass, joinColumnField.get(), idField);
     }
 }

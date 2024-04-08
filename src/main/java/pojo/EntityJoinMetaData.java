@@ -16,18 +16,16 @@ import static utils.StringUtils.isBlankOrEmpty;
 public class EntityJoinMetaData {
 
     private final Class<?> clazz;
-    private final Object entity;
     private final String entityName;
     private final String joinColumnName;
     private final List<FieldName> fieldNames;
     private final boolean lazy;
 
-    public EntityJoinMetaData(Class<?> clazz, Object entity, Field field, IdField entityMetaDataIdField) {
+    public EntityJoinMetaData(Class<?> clazz, Field field, IdField entityMetaDataIdField) {
         if (!clazz.isAnnotationPresent(Entity.class)) {
             throw new IllegalStateException("Entity 클래스가 아닙니다.");
         }
         this.clazz = clazz;
-        this.entity = entity;
         this.entityName = getEntityNameInfo();
         this.joinColumnName = getJoinColumnNameInfo(field, entityMetaDataIdField);
         this.fieldNames = getFieldNamesInfo();
