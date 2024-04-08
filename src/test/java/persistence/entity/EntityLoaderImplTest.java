@@ -1,6 +1,7 @@
 package persistence.entity;
 
 import database.H2;
+import entity.Order;
 import entity.Person3;
 import jdbc.JdbcTemplate;
 import org.junit.jupiter.api.AfterAll;
@@ -15,6 +16,7 @@ import persistence.sql.ddl.DropQueryBuilder;
 import pojo.EntityMetaData;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -28,13 +30,12 @@ class EntityLoaderImplTest extends JpaTest {
         server = new H2();
         server.start();
         jdbcTemplate = new JdbcTemplate(server.getConnection());
-
-        entityMetaData = new EntityMetaData(Person3.class, person);
-        initForTest(entityMetaData);
     }
 
     @BeforeEach
     void setUp() {
+        entityMetaData = new EntityMetaData(Person3.class);
+        initForTest(entityMetaData);
         createTable();
     }
 
@@ -61,6 +62,21 @@ class EntityLoaderImplTest extends JpaTest {
         );
     }
 
+    @DisplayName("findById 테스트 - 연관관계가 있는 경우")
+    @Test
+    void findByIdWithAssociationTest() {
+        entityMetaData = new EntityMetaData(Order.class);
+        initForTest(entityMetaData);
+
+        createOrderAndOrderItemTable();
+        insertOrderAndOrderItemData();
+
+        List<? extends Order> savedOrderList = entityLoader.findByIdWithAssociation(order.getClass(), order, order.getId());
+        assertThat(savedOrderList).hasSize(3);
+
+        dropOrderAndOrderItemTable();
+    }
+
     @DisplayName("findAll 테스트")
     @Test
     void findAllTest() {
@@ -76,6 +92,7 @@ class EntityLoaderImplTest extends JpaTest {
     }
 
     private void createTable() {
+        dropTable();
         CreateQueryBuilder createQueryBuilder = new CreateQueryBuilder(dialect, entityMetaData);
         jdbcTemplate.execute(createQueryBuilder.createTable(person));
     }

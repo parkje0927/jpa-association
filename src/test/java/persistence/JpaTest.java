@@ -49,4 +49,35 @@ public abstract class JpaTest {
         simpleEntityManager = new SimpleEntityManager(entityPersister, entityLoader, persistenceContext, entityEntry);
         jpaRepository = new CustomJpaRepository(simpleEntityManager);
     }
+
+    protected static void createOrderAndOrderItemTable() {
+        String createOrderSql = "create table orders(id bigint auto_increment primary key, order_number varchar(255) null);";
+        String createOrderItemSql = "create table order_items(id bigint auto_increment primary key, product  varchar(255) null, quantity int null, order_id bigint null, foreign key (order_id) references orders (id));";
+
+        jdbcTemplate.execute(createOrderSql);
+        jdbcTemplate.execute(createOrderItemSql);
+    }
+
+    protected static void insertOrderAndOrderItemData() {
+        String insertOrderSql = "insert into orders (id, order_number) values (" + order.getId() + ", '" + order.getOrderNumber() + "');";
+        String insertOrderItemSql1 = "insert into order_items (id, product, quantity, order_id) " +
+                "values (" + orderItem1.getId() + ", '" + orderItem1.getProduct() + "' , " + orderItem1.getQuantity() + ", " + order.getId() + ");";
+        String insertOrderItemSql2 = "insert into order_items (id, product, quantity, order_id) " +
+                "values (" + orderItem2.getId() + ", '" + orderItem2.getProduct() + "' , " + orderItem2.getQuantity() + ", " + order.getId() + ");";
+        String insertOrderItemSql3 = "insert into order_items (id, product, quantity, order_id) " +
+                "values (" + orderItem3.getId() + ", '" + orderItem3.getProduct() + "' , " + orderItem3.getQuantity() + ", " + order.getId() + ");";
+
+        jdbcTemplate.execute(insertOrderSql);
+        jdbcTemplate.execute(insertOrderItemSql1);
+        jdbcTemplate.execute(insertOrderItemSql2);
+        jdbcTemplate.execute(insertOrderItemSql3);
+    }
+
+    protected static void dropOrderAndOrderItemTable() {
+        String dropOrderTable = "drop table orders;";
+        String dropOrderItemTable = "drop table order_items;";
+
+        jdbcTemplate.execute(dropOrderItemTable);
+        jdbcTemplate.execute(dropOrderTable);
+    }
 }

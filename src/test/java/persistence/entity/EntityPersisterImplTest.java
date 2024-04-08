@@ -30,13 +30,12 @@ class EntityPersisterImplTest extends JpaTest {
         server = new H2();
         server.start();
         jdbcTemplate = new JdbcTemplate(server.getConnection());
-
-        entityMetaData = new EntityMetaData(Person3.class, person);
-        initForTest(entityMetaData);
     }
 
     @BeforeEach
     void setUp() {
+        entityMetaData = new EntityMetaData(Person3.class);
+        initForTest(entityMetaData);
         createTable();
     }
 
