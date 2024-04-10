@@ -51,7 +51,7 @@ class CustomSelectQueryBuilderTest extends JpaTest {
     void selectSqlWithJoinColumn() {
         entityMetaData = new EntityMetaData(Order.class);
 
-        CustomSelectQueryBuilder customSelectQueryBuilder = new CustomSelectQueryBuilder(entityMetaData, order);
+        CustomSelectQueryBuilder customSelectQueryBuilder = new CustomSelectQueryBuilder(entityMetaData);
         String selectJoinQuery = customSelectQueryBuilder.findByIdJoinQuery(order, Order.class);
 
         String resultQuery = "SELECT orders.id, orders.order_number, order_items.id, order_items.product, order_items.quantity FROM orders LEFT JOIN order_items ON orders.id = order_items.order_id WHERE orders.id = 1;";

@@ -52,7 +52,7 @@ public abstract class JpaTest {
 
     protected static void createOrderAndOrderItemTable() {
         String createOrderSql = "create table orders(id bigint auto_increment primary key, order_number varchar(255) null);";
-        String createOrderItemSql = "create table order_items(id bigint auto_increment primary key, product  varchar(255) null, quantity int null, order_id bigint null, foreign key (order_id) references orders (id));";
+        String createOrderItemSql = "create table order_items(id bigint auto_increment primary key, product varchar(255) null, quantity int null, order_id bigint null, foreign key (order_id) references orders (id));";
 
         jdbcTemplate.execute(createOrderSql);
         jdbcTemplate.execute(createOrderItemSql);
@@ -74,8 +74,8 @@ public abstract class JpaTest {
     }
 
     protected static void dropOrderAndOrderItemTable() {
-        String dropOrderTable = "drop table orders;";
         String dropOrderItemTable = "drop table order_items;";
+        String dropOrderTable = "drop table orders;";
 
         jdbcTemplate.execute(dropOrderItemTable);
         jdbcTemplate.execute(dropOrderTable);
