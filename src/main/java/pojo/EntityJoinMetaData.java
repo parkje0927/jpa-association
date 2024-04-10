@@ -17,31 +17,23 @@ public class EntityJoinMetaData {
 
     private final Class<?> clazz;
     private final String entityName;
-    private final String joinColumnName;
-    private final List<FieldName> fieldNames;
+    private final FieldInfos fieldInfos;
+    private final Field joinField;
     private final boolean lazy;
 
-    public EntityJoinMetaData(Class<?> clazz, Field field, IdField entityMetaDataIdField) {
+    public EntityJoinMetaData(Class<?> clazz, Field field) {
         if (!clazz.isAnnotationPresent(Entity.class)) {
             throw new IllegalStateException("Entity 클래스가 아닙니다.");
         }
         this.clazz = clazz;
         this.entityName = getEntityNameInfo();
-        this.joinColumnName = getJoinColumnNameInfo(field, entityMetaDataIdField);
-        this.fieldNames = getFieldNamesInfo();
+        this.fieldInfos = new FieldInfos(clazz.getDeclaredFields());
+        this.joinField = field;
         this.lazy = isLazy(field);
     }
 
     public String getEntityName() {
         return entityName;
-    }
-
-    public String getJoinColumnName() {
-        return joinColumnName;
-    }
-
-    public List<FieldName> getFieldNames() {
-        return fieldNames;
     }
 
     public boolean isLazy() {
@@ -56,22 +48,22 @@ public class EntityJoinMetaData {
         return clazz.getSimpleName().toLowerCase();
     }
 
-    public String getJoinColumnNameInfo(Field field, IdField entityMetaDataIdField) {
-        if (field.isAnnotationPresent(JoinColumn.class) && !isBlankOrEmpty(field.getAnnotation(JoinColumn.class).name())) {
-            return field.getAnnotation(JoinColumn.class).name();
+    private boolean isLazy(Field field) {
+        //일단 OneToMany 만 고려
+        return !field.getAnnotation(OneToMany.class).fetch().equals(FetchType.EAGER);
+    }
+
+    public String getJoinColumnNameInfo(IdField entityMetaDataIdField) {
+        if (joinField.isAnnotationPresent(JoinColumn.class) && !isBlankOrEmpty(joinField.getAnnotation(JoinColumn.class).name())) {
+            return joinField.getAnnotation(JoinColumn.class).name();
         }
 
         return getEntityNameInfo() + UNDER_SCORE + entityMetaDataIdField.getFieldNameData();
     }
 
-    private List<FieldName> getFieldNamesInfo() {
-        return new FieldInfos(clazz.getDeclaredFields()).getIdAndColumnFields().stream()
+    public List<FieldName> getFieldNamesInfo() {
+        return fieldInfos.getIdAndColumnFields().stream()
                 .map(FieldName::new)
                 .collect(Collectors.toList());
-    }
-
-    private boolean isLazy(Field field) {
-        //일단 OneToMany 만 고려
-        return !field.getAnnotation(OneToMany.class).fetch().equals(FetchType.EAGER);
     }
 }

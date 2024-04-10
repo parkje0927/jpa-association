@@ -33,9 +33,9 @@ public class EntityLoaderImpl implements EntityLoader {
     //연관관계가 있는 경우 & eager 타입만 고려
     @Override
     public <T> List<T> findByIdWithAssociation(Class<T> clazz, Object entity, Object condition) {
-        CustomSelectQueryBuilder customSelectQueryBuilder = new CustomSelectQueryBuilder(entityMetaData, entity);
+        CustomSelectQueryBuilder customSelectQueryBuilder = new CustomSelectQueryBuilder(entityMetaData);
 
-        EntityJoinMetaData entityJoinMetaData = entityMetaData.createEntityJoinMetaDataInfo(entity);
+        EntityJoinMetaData entityJoinMetaData = entityMetaData.createEntityJoinMetaDataInfo();
         if (!entityJoinMetaData.isLazy()) {
             return eagerTypeQuery(customSelectQueryBuilder, clazz, entity);
         }
@@ -47,6 +47,5 @@ public class EntityLoaderImpl implements EntityLoader {
 
     private <T> List<T> eagerTypeQuery(CustomSelectQueryBuilder customSelectQueryBuilder, Class<T> clazz, Object entity) {
         return jdbcTemplate.query(customSelectQueryBuilder.findByIdJoinQuery(entity, clazz), new RowMapperImpl<>(clazz));
-
     }
 }

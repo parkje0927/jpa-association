@@ -49,16 +49,13 @@ public class EntityMetaData {
                 .collect(Collectors.toList());
     }
 
-    public EntityJoinMetaData createEntityJoinMetaDataInfo(Object entity) {
+    public EntityJoinMetaData createEntityJoinMetaDataInfo() {
         Optional<Field> joinColumnField = fieldInfos.getJoinColumnField();
         if (joinColumnField.isEmpty()) {
             return null;
         }
 
-        Field field = fieldInfos.getIdField();
-        IdField idField = new IdField(field, entity);
-
         Class<?> joinClass = (Class<?>) ((ParameterizedType) joinColumnField.get().getGenericType()).getActualTypeArguments()[0];
-        return new EntityJoinMetaData(joinClass, joinColumnField.get(), idField);
+        return new EntityJoinMetaData(joinClass, joinColumnField.get());
     }
 }

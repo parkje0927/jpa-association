@@ -18,9 +18,9 @@ public class CustomSelectQueryBuilder {
     private final EntityMetaData entityMetaData;
     private final EntityJoinMetaData entityJoinMetaData;
 
-    public CustomSelectQueryBuilder(EntityMetaData entityMetaData, Object entity) {
+    public CustomSelectQueryBuilder(EntityMetaData entityMetaData) {
         this.entityMetaData = entityMetaData;
-        this.entityJoinMetaData = entityMetaData.createEntityJoinMetaDataInfo(entity);
+        this.entityJoinMetaData = entityMetaData.createEntityJoinMetaDataInfo();
     }
 
     public String findByIdJoinQuery(Object entity, Class<?> clazz) {
@@ -32,7 +32,7 @@ public class CustomSelectQueryBuilder {
 
         return String.format(FIND_BY_ID_JOIN_QUERY, getSelectData(entity), metaDataEntityName, joinMetaDataEntityName,
                 metaDataEntityName + PERIOD + idField.getFieldNameData(),
-                joinMetaDataEntityName + PERIOD + entityJoinMetaData.getJoinColumnName(),
+                joinMetaDataEntityName + PERIOD + entityJoinMetaData.getJoinColumnNameInfo(idField),
                 metaDataEntityName + PERIOD + idField.getFieldNameData(), idField.getFieldValueData());
     }
 
@@ -44,7 +44,7 @@ public class CustomSelectQueryBuilder {
                 .reduce((o1, o2) -> String.join(COMMA, o1, o2))
                 .orElseThrow(() -> new IllegalStateException("Id 혹은 Column 타입이 없습니다."));
 
-        String ownerEntityData = entityJoinMetaData.getFieldNames()
+        String ownerEntityData = entityJoinMetaData.getFieldNamesInfo()
                 .stream()
                 .map(FieldName::getName)
                 .map(name -> entityJoinMetaData.getEntityName() + PERIOD + name)
